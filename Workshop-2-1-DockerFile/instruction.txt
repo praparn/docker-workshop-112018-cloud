@@ -4,52 +4,32 @@ Part 1: NODEJS/NGINX
 -----------------------------------------------------------------------------------------------------------
 NODEJS Container:
 
-1. Check folder "dockerworkshop" and configuration on docker for mac and docker for windows
-	*For MAC OS X*:
-		ls ~/dockerworkshop
-
-	*For Windows*:
-		dir d:\dockerworkshop
+1. Check folder "Workshop-2-1-DockerFile" by command
+	ls ~/docker-workshop-112018-cloud/Workshop-2-1-DockerFile
 
 2. Build docker image from command: 
-	*For MAC OS X*:
-		cd ~/dockerworkshop/Workshop-2-1-DockerFile/nodejs
-		docker image build -t labdocker/node:1.0 ~/dockerworkshop/Workshop-2-1-DockerFile/nodejs
-
-	*For Windows*:
-		cd d:\dockerworkshop\Workshop-2-1-DockerFile\nodejs
-		docker image build -t labdocker/node:1.0 d:\dockerworkshop\Workshop-2-1-DockerFile\nodejs
+	docker image build -t labdocker/node:1.0 ~/docker-workshop-112018-cloud/Workshop-2-1-DockerFile/nodejs
 
 3. Create custome network for support stack by command:
 	docker network create --driver bridge \
 	--subnet=192.168.100.0/24 --ip-range=192.168.100.128/25 \
 	--gateway=192.168.100.5 --opt="com.docker.network.mtu"="1500" restful_switch
 
-	*For Windows*:
-	docker network create --driver bridge --subnet=192.168.100.0/24 --ip-range=192.168.100.128/25 --gateway=192.168.100.5 --opt="com.docker.network.mtu"="1500" restful_switch
-
 4. Test run docker image from command: "docker container run -dt --name NODEJS --net=restful_switch --network-alias=nodejs -p 3000:3000 labdocker/node:1.0"
 
-5. open url:"http://127.0.0.1:3000"
+5. open url:"http://<Public IP>:3000"
 
 
 NGINX Container:
 
-
 6. Build docker image from command:
-	*For MAC OS X*:
-		cd ~/dockerworkshop/Workshop-2-1-DockerFile/nginx
-		docker image build -t labdocker/web:1.0 ~/dockerworkshop/Workshop-2-1-DockerFile/nginx
-
-	*For Windows*:
-		cd d:\dockerworkshop\Workshop-2-1-DockerFile\nginx
-		docker image build -t labdocker/web:1.0 d:\dockerworkshop\Workshop-2-1-DockerFile\nginx
+	docker image build -t labdocker/web:1.0 ~/docker-workshop-112018-cloud/Workshop-2-1-DockerFile/nginx
 
 8. Test run docker image from command: "docker container run -dt --name NGINX -p 8080:8080 --net=restful_switch --network-alias=nginx labdocker/web:1.0"
 
-9. open url:"http://127.0.0.1:8080"
+9. open url:"http://<Public IP>:8080"
 
-10. open url:"http://127.0.0.1:8080/nodejs"
+10. open url:"http://<Public IP>:8080/nodejs"
 
 11. Clean Up Lab with command below
 
@@ -59,33 +39,19 @@ NGINX Container:
 
 Part 2: RESTFUL Python
 ------------------------------------------------------------------------------------------------------------
-1. Check folder "dockerworkshop" and configuration on docker for mac and docker for windows
-	*For MAC OS X*:
-		ls ~/dockerworkshop
-
-	*For Windows*:
-		dir d:\dockerworkshop
+1. Check folder "Workshop-2-1-DockerFile" by command
+	ls ~/docker-workshop-112018-cloud/Workshop-2-1-DockerFile
 
 2. Pull require image on lab by command:
 	docker image pull labdocker/mariadb:latest
 	docker image pull labdocker/redis:latest
 
 3. Build module "webservice" by command:
-	*For MAC OS X*:
-		cd ~/dockerworkshop/Workshop-2-1-DockerFile/python_restfulset
-		docker image build -t labdocker/webservice:1.0 -f dockerfile_python ~/dockerworkshop/Workshop-2-1-DockerFile/python_restfulset
-
-	*For Windows*:
-		cd d:\dockerworkshop\Workshop-2-1-DockerFile\python_restfulset
-		docker image build -t labdocker/webservice:1.0 -f dockerfile_python d:\dockerworkshop\Workshop-2-1-DockerFile\python_restfulset
-
+	cd ~/docker-workshop-112018-cloud/Workshop-2-1-DockerFile/python_restfulset
+	docker image build -t labdocker/webservice:1.0 -f dockerfile_python ./
 
 3. Build module "webcache" by command:
-	*For MAC OS X*:
-		docker image build -t labdocker/webcache:1.0 -f dockerfile_nginx ~/dockerworkshop/Workshop-2-1-DockerFile/python_restfulset
-
-	*For Windows*:
-		docker image build -t labdocker/webcache:1.0 -f dockerfile_nginx d:\dockerworkshop\Workshop-2-1-DockerFile\python_restfulset
+	docker image build -t labdocker/webcache:1.0 -f dockerfile_nginx ./
 
 4. Setup application stack by command:
 	(maindb: mariadb)
@@ -101,25 +67,15 @@ Part 2: RESTFUL Python
 	docker container run -dt --name webcache --net=restful_switch --network-alias=webcache -p 80:8080 labdocker/webcache:1.0
 
 5. Set environment variable for test by command:
-    export Server_IP=127.0.0.1
+    export Server_IP=<Public IP>
     export Server_Port=80 (If need to direct test to python will change to 5000)
 
-	*For Windows*: (For Windows do this step via command prompt)
-	Set-Variable -Name "Server_IP" -Value 127.0.0.1
-	Set-Variable -Name "Server_Port" -Value 80
-
-6. Test restful service via curl by command: (For Windows do this step via command prompt)
+6. Test restful service via curl by command:
 	(basic test web)
 	curl http://$Server_IP:$Server_Port/
 
-	*For Windows*:
-	Invoke-WebRequest -UseBasicParsing -Uri http://$Server_IP/ (Or PostMan was preferred)
-
 	(initial database)
 	curl http://$Server_IP:$Server_Port/init
-	*For Windows*:
-	Invoke-WebRequest -UseBasicParsing -Uri http://$Server_IP/init
-
 
 	(insert data by rest)
 	  curl -i -H "Content-Type: application/json" -X POST -d '{"uid": "1", "user":"Praparn Luangphoonlap", "descripe":"Slave"}' http://$Server_IP:$Server_Port/users/insertuser

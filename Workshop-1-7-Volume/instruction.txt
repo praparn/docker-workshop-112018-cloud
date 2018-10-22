@@ -6,25 +6,14 @@ Before Start Lab:
 
 Part 1: Host Path Debug Program
 ---------------------------------------------------------------------------------------------------------------
-1. Check folder "dockerworkshop" and configuration on docker for mac and docker for windows
-	*For MAC OS X*:
-		ls ~/dockerworkshop
+1. Check folder "Workshop-1-7-Volume" by command
+	ls ~/docker-workshop-112018-cloud/Workshop-1-7-Volume
 
-	*For Windows*:
-		dir d:\dockerworkshop
-
-		
 2. Pull image of container for operate by command: "docker image pull labdocker/alpine:latest"
 3. Run container with mapping volume by command:
-
-	*For MAC OS X*:
-	cd ~/dockerworkshop/Workshop-1-7-Volume/LINE_Notify/
-	pwd	==> check <absolute path>
-	docker container run -dt --name linenotify --mount type=bind,source=<absolute path>,target=/nodejs labdocker/alpine:latest sh
-
-	*For Windows*:
-	cd d:\dockerworkshop\Workshop-1-7-Volume\LINE_Notify\
-	docker container run -dt --name linenotify --mount type=bind,source=d:\dockerworkshop\Workshop-1-7-Volume\LINE_Notify\,target=/nodejs labdocker/alpine:latest sh  
+	docker container run -dt --name linenotify \
+	--mount type=bind,source=/home/ubuntu/docker-workshop-112018-cloud/Workshop-1-7-Volume/LINE_Notify,target=/nodejs \
+	labdocker/alpine:latest sh
 
 4. Attach to container by command: docker container exec -it linenotify sh
 5. Update component by command:
@@ -47,10 +36,11 @@ Part 1: Host Path Debug Program
 	cd /nodejs
 	node index.js
 
-9. Open index.js on VSCode and Test change sometext:
+9. Open another session and edit file index.js on VSCode and Test change sometext:
+	vi ~/docker-workshop-112018-cloud/Workshop-1-7-Volume/LINE_Notify/index.js 
 	Line 36: var titleMSG="\n"+TITLE+"("+pID+")" ==> var titleMSG="\n"+TITLE+"("+pID+" Edit LINENOTIFY)"
 
-10. Rerun LINENotify by command:
+10. Rerun LINENotify on old session by command:
 	node index.js
 
 11. You can also swith some parameter for set warning as command:
@@ -71,64 +61,48 @@ Part 2: Container Volume
 ---------------------------------------------------------------------------------------------------------------
 
 1. Create volume container with command:
-
 	docker volume create --driver local datavol
 	docker volume ls
 
 2. Create web container (web1) by attach volume with command:
-
 	docker container run -dt --name web1 --mount source=datavol,target=/data labdocker/alpine sh
 
 3. Shell to container web1 and touch file on /data
-
 	docker container exec -it web1 sh
 	touch /data/test_web1
 	exit
 
 4. Create web container (web2) by attach volume with command:
-
 	docker container run -dt --name web2 --mount source=datavol,target=/data labdocker/alpine sh
 
 5. Shell to container web2 and touch file on /data
-
 	docker container exec -it web2 sh
 	touch /data/test_web2
 	exit
 
 6. Create backup for volume /data by run container with command:
-
 	docker container run --rm --mount source=datavol,target=/data \
 	--mount type=bind,source=$(pwd),target=/backup \
 	labdocker/ubuntu:latest tar cvf /backup/vol001.tar /data
 
-	*For Windows*
-	docker container run --rm --mount source=datavol,target=/data --mount type=bind,source=d:\dockerworkshop\Workshop-1-7-Volume\LINE_Notify\,target=/backup labdocker/ubuntu:latest tar cvf /backup/vol001.tar /data
-
-7. We will see backup file (vol001.tar)
+7. We will see backup file (vol001.tar):
 
 8. Shell to any container to delete file
-
 	docker container exec -it web1 sh
 	rm /data/*
 	exit
 
 9. Restore backup for volume /data by run container with command:
-
 	docker container run --rm --mount source=datavol,target=/data \
 	--mount type=bind,source=$(pwd),target=/backup  \
 	labdocker/ubuntu:latest bash -c "cd /data && tar xvf /backup/vol001.tar --strip 1"
 
-	*For Windows*
-	docker container run --rm --mount source=datavol,target=/data --mount type=bind,source=d:\dockerworkshop\Workshop-1-7-Volume\LINE_Notify\,target=/backup labdocker/ubuntu:latest bash -c "cd /data && tar xvf /backup/vol001.tar --strip 1"
-
 10. Check on any container for check file
-
 	docker container exec -it web1 sh
 	ls -lh /data
 	exit
 
 11. Cleanup lab
-
 	docker container stop web1 web2
 	docker container rm web1 web2
 	docker volume rm datavol
