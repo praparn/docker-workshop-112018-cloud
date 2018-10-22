@@ -1,0 +1,62 @@
+For this workshop. We will demonstrate "registry on single docker-machine", "registry on multiple docker"
+
+---------------------------------------------------------------------------------------------------
+Part1: Registry on single docker-machine
+---------------------------------------------------------------------------------------------------
+
+1. Getting image of registry by command:
+docker image pull registry:2.6.2
+	*REMARK: Registry image sizing about 33 MB
+
+2. Running registry by command:
+	*For MAC OS X*:
+		cd ~/dockerworkshop/Workshop-2-3-Registry/
+		docker container run -d -p 5000:5000 \
+		--restart=always --name registrylab \
+		-e REGISTRY_STORAGE_DELETE_ENABLED=true \
+		--mount type=bind,source=$(pwd),target=/var/lib/registry \
+		registry:2.6.2
+
+	*For Windows*:
+		cd d:\dockerworkshop\Workshop-2-3-Registry\
+		docker container run -d -p 5000:5000 --restart=always --name registrylab -e REGISTRY_STORAGE_DELETE_ENABLED=true --mount type=bind,source=d:\dockerworkshop\Workshop-2-3-Registry\,target=/var/lib/registry registry:2.6.2
+
+
+3. Tag image for upload to new registry with command:
+
+	docker image tag labdocker/alpine:latest localhost:5000/alpine:latest
+
+4. Push docker images to registry with command: "docker image push localhost:5000/alpine:latest"
+
+*REMARK: Keep digest :
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ sha256:02892826401a9d18f0ea01f8a2f35d328ef039db4e1edcc45c630314a0457d5b size: 528
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+5. Operate with registry with curl:
+
+	curl -X GET http://127.0.0.1:5000/v2/_catalog ==> List all images in catalog
+	curl -X GET http://127.0.0.1:5000/v2/alpine/tags/list ==> List all tag on alpine image
+
+	*For Windows*: Use via postman
+
+	*Retrieve Digest When You Forget*
+	curl -v --silent -H "Accept: application/vnd.docker.distribution.manifest.v2+json" -X GET http://localhost:5000/v2/alpine/manifests/latest 2>&1 | grep Docker-Content-Digest | awk '{print ($3)}'
+
+
+6. Test Delete and redownload docker image with command:
+
+	docker image rm localhost:5000/alpine:latest
+	docker image ls
+	docker image pull localhost:5000/alpine:latest
+	docker image ls
+
+7. Delete docker images from registry
+
+	curl -X DELETE http://127.0.0.1:5000/v2/alpine/manifests/sha256:02892826401a9d18f0ea01f8a2f35d328ef039db4e1edcc45c630314a0457d5b
+	
+
+8. Clean Up Lab by command:
+	docker container stop registrylab
+	docker container rm -v registrylab
