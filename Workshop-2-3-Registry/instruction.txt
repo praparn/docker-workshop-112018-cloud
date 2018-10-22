@@ -17,11 +17,6 @@ docker image pull registry:2.6.2
 		--mount type=bind,source=$(pwd),target=/var/lib/registry \
 		registry:2.6.2
 
-	*For Windows*:
-		cd d:\dockerworkshop\Workshop-2-3-Registry\
-		docker container run -d -p 5000:5000 --restart=always --name registrylab -e REGISTRY_STORAGE_DELETE_ENABLED=true --mount type=bind,source=d:\dockerworkshop\Workshop-2-3-Registry\,target=/var/lib/registry registry:2.6.2
-
-
 3. Tag image for upload to new registry with command:
 
 	docker image tag labdocker/alpine:latest localhost:5000/alpine:latest
@@ -58,5 +53,77 @@ docker image pull registry:2.6.2
 	
 
 8. Clean Up Lab by command:
+	docker container stop registrylab
+	docker container rm -v registrylab
+
+
+===================================
+Registry on multihost docker-machine
+===================================
+
+9. Setup New machine
+
+10. Check ip address of new docker-machine (labdocker2) by command (on notebook): "docker-machine ls"
+
+11. Setup Sharefolder for "/Share_DockerToolbox" for labdocker2 and restart labdocker2
+
+12. Copy "labdocker.com.key","labdocker.com.crt" to "/Share_DockerToolbox"
+
+13. Trust certificate via command (labdocker, labdocker2):
+	sudo mkdir /etc/docker/certs.d
+	sudo mkdir /etc/docker/certs.d/labdocker.com:5000
+	sudo cp /Share_DockerToolbox/labdocker.com.crt /etc/docker/certs.d/labdocker.com:5000
+
+14. Create htpasswd for store username/password for authentication with registry by command (labdocker):
+	docker container run -i --rm --entrypoint htpasswd registry:2.6.2 -Bbn docker tcuser >> /Share_DockerToolbox/htpasswd
+	docker container run -i --rm --entrypoint htpasswd registry:2.6.2 -Bbn labdockerthailand dockerlab >> /Share_DockerToolbox/htpasswd
+	
+15. Verify htpasswd by command (labdocker):
+	more /Share_DockerToolbox/htpasswd
+
+16. Run container registry (labdocker):
+
+	docker container run -d -p 5000:5000 \
+	--restart=always --name registrylab \
+	--mount type=bind,source=/home/docker,target=/var/lib/registry \
+	--mount type=bind,source=/Share_DockerToolbox,target=/certs \
+	--mount type=bind,source=/Share_DockerToolbox,target=/auth \
+	-e "REGISTRY_AUTH=htpasswd" \
+  	-e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm" \
+	-e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd \
+	-e REGISTRY_STORAGE_DELETE_ENABLED=true \
+	-e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/labdocker.com.crt \
+	-e REGISTRY_HTTP_TLS_KEY=/certs/labdocker.com.key \
+	registry:2.6.2
+
+17. Add "labdocker.com" on hosts (/etc/hosts) by command (labdocker, labdocker2):
+	sudo -- sh -c -e "echo '192.168.99.100   labdocker.com' >> /etc/hosts"
+	ping labdocker.com
+
+18. Login with regitry by command (labdocker):
+	docker login labdocker.com:5000
+
+19. Tag docker image and Test Push (labdocker) by command:
+
+	docker image tag labdocker/alpine:latest \
+	labdocker.com:5000/alpine:1.0
+
+	docker image push labdocker.com:5000/alpine:1.0
+
+	docker logout labdocker.com:5000
+	*REMARK: digest: sha256:65242e8220a341cec40628caaea77eb4acd2fc252329aa853526fde15a4a1d85 size: 506
+
+20. Test pull image from labdocker 2 (labdocker2) by command:
+	docker login labdocker.com:5000
+	docker image pull labdocker.com:5000/alpine:1.0
+
+21. Operate with docker registry via https (labdocker2)
+	curl -u docker:tcuser --cacert /Share_DockerToolbox/labdocker.com.crt -X GET https://labdocker.com:5000/v2/_catalog ==> List all images in catalog
+	curl -u docker:tcuser --cacert /Share_DockerToolbox/labdocker.com.crt -X GET https://labdocker.com:5000/v2/alpine/tags/list ==> List all tag on alpine image
+	curl -u docker:tcuser --cacert /Share_DockerToolbox/labdocker.com.crt -X DELETE https://labdocker.com:5000/v2/alpine/manifests/sha256:65242e8220a341cec40628caaea77eb4acd2fc252329aa853526fde15a4a1d85
+
+
+
+22. Cleanup by command (labdocker):
 	docker container stop registrylab
 	docker container rm -v registrylab

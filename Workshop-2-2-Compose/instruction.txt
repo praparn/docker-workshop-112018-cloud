@@ -1,5 +1,3 @@
-For this workshop. We will install docker-compose tool on your docker-machine (labdocker) and demonstration for use compose tool
-
 =================
 Check version of docker-compose
 =================
@@ -10,14 +8,9 @@ Check version of docker-compose
 Part1: COMPOSENODEJS
 ---------------------------------------------------------------------------------------------------
 
-1. Check folder "dockerworkshop" and configuration on docker for mac and docker for windows
-	*For MAC OS X*:
-		ls ~/dockerworkshop
-		cd ~/dockerworkshop/Workshop-2-2-Compose/composenodejs
-
-	*For Windows*:
-		dir d:\dockerworkshop
-		cd d:\dockerworkshop\Workshop-2-2-Compose\composenodejs
+1. Check folder "Workshop-2-2-Compose" and access to folder by command
+		ls ~/docker-workshop-112018-cloud/Workshop-2-2-Compose
+		cd ~/docker-workshop-112018-cloud/Workshop-2-2-Compose/composenodejs
 
 2. Start docker-compose on path by command: "docker-compose up -d"
 
@@ -25,7 +18,7 @@ Part1: COMPOSENODEJS
 
 4. Check avalaible image use for this stack by command: "docker-compose images"
 
-5. Open url: http://127.0.0.1:3000 for check result
+5. Open url: http://<Public IP>:3000 for check result
 
 6. Stop docker-compose by command: "docker-compose stop"
 
@@ -35,18 +28,13 @@ Part1: COMPOSENODEJS
 Part2: MULTIPLENODEJS
 ---------------------------------------------------------------------------------------------------
 
-8. Check folder "dockerworkshop" and configuration on docker for mac and docker for windows
-	*For MAC OS X*:
-		ls ~/dockerworkshop
-		cd ~/dockerworkshop/Workshop-2-2-Compose/composemultinodejs
-
-	*For Windows*:
-		dir d:\dockerworkshop
-		cd d:\dockerworkshop\Workshop-2-2-Compose\composemultinodejs
+8. Check folder "Workshop-2-2-Compose" and access to folder by command
+		ls ~/docker-workshop-112018-cloud/Workshop-2-2-Compose
+		cd ~/docker-workshop-112018-cloud/Workshop-2-2-Compose/composemultinodejs
 
 9. Start docker-compose on path by command: "docker-compose up -d"
 
-10. Open url: http://127.0.0.1/nodejs for check result
+10. Open url: http://<Public IP>/nodejs for check result
 
 11. Stop docker-compose by command: "docker-compose stop"
 
