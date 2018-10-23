@@ -1,4 +1,4 @@
-For this workshop. We will create new docker-engine for swarm mode with new architecture for demonstration below:
+For this workshop. We will group 3 machine per group for setup swarm mode with new architecture for demonstration below:
 
 ===================================================
 LAB Preparation
@@ -11,7 +11,14 @@ LAB Preparation
 	1					Training_DockerZerotoHero_StudentG1_3					10.0.1.XX										X.X.X.X							Worker2
 ############################################################################################################################################################################
 
-2. Follow document pdf for access ssh (Windows/MACOS). The key now is avaliable on lab is "docker_lab" (MAC OS X) and "docker_lab.ppk" (Windows)
+2. Follow sheet to access all machine of your group and clear existing configuration by command: 
+	docker system prune -a
+	"Answer: Y" for clear all image and container in machine
+
+	*Remark: If need you can renew clone workshop again by command below:
+    cd ~/
+	rm -rf ./docker-workshop-112018-cloud
+    git clone https://github.com/praparn/docker-workshop-112018-cloud.git
 
 3. (all node) SSH/Putty to target machine with command below:
 ssh -i docker_lab ubuntu@<Public IP Address of Master>
@@ -21,21 +28,10 @@ ssh -i docker_lab ubuntu@<Public IP Address of Worker2>
 4. (all node) Setup TMUX script and SSH for Share Session:
 sudo apt-get update && sudo apt-get install -y tmux
 tmux new -s Lab
-		# Remark: For your co-worker please kindly ssh to target node and join session with command #
+		* Remark: For your co-worker please kindly ssh to target node and join session with command #
 		tmux attach-session -t Lab
 
-5. (all node) Setup docker base software by command:
-sudo chmod +x ~/setup.sh
-sudo su -
- /home/ubuntu/setup.sh
-exit
-
-6. (all node) log off and relogon again with test docker by command: docker run hello-world
-
-7. (master) Clone workshop from gitlab by command:
-cd ~/
-git clone https://github.com/praparn/docker_workshop_112018.git
-
+5. (all node) log off and relogon again with test docker by command: docker run hello-world
 
 ===================================================
 Initial Swarm Cluster
@@ -86,14 +82,13 @@ Swarm Service (master)
 	docker service ls
 	docker service ps nodejs
 
-7. Update reserve/limit CPU by command:
-
+6. Update reserve/limit CPU by command:
 	docker service update -dt --reserve-cpu 1 --limit-cpu 1 nodejs
 	docker service inspect nodejs | more
 	docker service inspect nodejs | grep update
 	docker service ps nodejs
 
-6. Stop & Remove service by command: docker service rm nodejs
+7. Stop & Remove service by command: docker service rm nodejs
 
 
 ===================================================
@@ -103,12 +98,11 @@ Orchestrator Assignment: node constrain (master)
 1. Run service with Constraint “node.id” as command below <change node id to master>:
 	docker node ls
 	docker service create -dt --constraint 'node.id==3tnvltyyohbekgygvsb1jjovy' --name nodejs --replicas=5 labdocker/alpineweb:latest node hello.js
-
 	docker service ps nodejs
 
 2. Change service with Constrating “node.hostname” and delete Constraint “node.id” by  command below:
-
 	docker service update -dt --constraint-rm 'node.id==3tnvltyyohbekgygvsb1jjovy' --constraint-add 'node.hostname!=<master hostname>' nodejs
+	docker service inspect nodejs | grep update
 	docker service ps nodejs
 	docker service rm nodejs
 
@@ -122,13 +116,11 @@ Orchestrator Assignment: custom label on node (master)
 	docker node update --label-add 'storage=sata' <worker2 hostname>
 
 2. Check configuration of node by command:
-
 	docker node inspect <master hostname>|grep storage
 	docker node inspect <worker1 hostname>|grep storage
 	docker node inspect <worker2 hostname>|grep storage
 
 3. Create service nodejs to running with constraint custom label by command:
-
 	docker service create -dt  --constraint 'node.labels.storage==sas' --name nodejs --replicas=5 labdocker/alpineweb:latest node hello.js
 	docker service ps nodejs
 	docker service rm nodejs
@@ -149,18 +141,18 @@ Orchestrator Assignment: service preference placement (master)
 	docker node inspect <worker2 hostname>|grep physical
 
 3. Create service nodejs to running with service placement preference by command:
-
 	docker service create -dt  --placement-pref 'spread=node.labels.physical' \
 	--name nodejs --replicas=10 labdocker/alpineweb:latest node hello.js
 	docker service ps nodejs
 	docker service rm nodejs
 
 4. Clear custom label on node by command:
+	docker node ls
 	docker node update --label-rm 'physical' <master hostname>
-	docker node update --label-rm 'storage' <master hostname>
 	docker node update --label-rm 'physical' <worker1 hostname>
-	docker node update --label-rm 'storage' <worker1 hostname>
 	docker node update --label-rm 'physical' <worker2 hostname>
+	docker node update --label-rm 'storage' <master hostname>
+	docker node update --label-rm 'storage' <worker1 hostname>
 	docker node update --label-rm 'storage' <worker2 hostname>
 
 ====================================================
@@ -168,15 +160,15 @@ Docker config and secret (master)
 ====================================================
 
 1. Access to folder on workshop and check file "nginx.conf","labdocker.com.crt","labdocker.com.key" by command:
-	ls ~/docker_workshop_112018/Workshop-2-4-Swarm/
+	ls ~/docker-workshop-112018-cloud/Workshop-2-4-Swarm/
 
 2. Create config file for nginx by command: 
-	docker config create nginx.conf ~/docker_workshop_112018/Workshop-2-4-Swarm/nginx.conf
+	docker config create nginx.conf ~/docker-workshop-112018-cloud/Workshop-2-4-Swarm/nginx.conf
 	docker config ls
 
 3. Create secret for .crt and .key by command:
-	docker secret create labdocker.com.crt ~/docker_workshop_112018/Workshop-2-4-Swarm/labdocker.com.crt
-	docker secret create labdocker.com.key ~/docker_workshop_112018/Workshop-2-4-Swarm/labdocker.com.key
+	docker secret create labdocker.com.crt ~/docker-workshop-112018-cloud/Workshop-2-4-Swarm/labdocker.com.crt
+	docker secret create labdocker.com.key ~/docker-workshop-112018-cloud/Workshop-2-4-Swarm/labdocker.com.key
 	docker secret ls
 
 4. Create service with publish port 443 by command:
@@ -248,6 +240,8 @@ HA Manager Role in Swarm
 
 4. (worker1 or worker2) Check swarm cluster status by command: docker node ls
 
+5. (master) Check master node when it back online: ssh -i "docker_lab" ubuntu@<Public IP>
+
 ==================================================
 Remove Manager / Worker from Swarm Cluster
 ==================================================
@@ -261,18 +255,21 @@ Remove Manager / Worker from Swarm Cluster
 
 3. (worker1, master) Check node status of “labdocker” by command: docker node ls
 
-4. (worker2) After node status “Down” we can remove node by command: docker node rm <worker2 hostname>
+4. (worker2) After node status “Down” we can remove node by command: 
+	docker node rm <worker2 hostname>
+	docker node ls
 
 5. (worker2) Rejoin workder2 as manager by join token command:
 docker swarm join --token SWMTKN-1-1qnpobqw0hilpc5i90sz803tlhyi1h4k84uok10y814bvhyqf2-3u9rqxfwhbhw52qwqeeiewybl 10.0.1.104:2377
+docker node ls
 
 ==================================================
 Swarm Compose
 ==================================================
-1. (master) check folder python_restfulset by command: ls ~/docker_workshop_112018/Workshop-2-4-Swarm/python_restfulset/
+1. (master) check folder python_restfulset by command: ls ~/docker-workshop-112018-cloud/Workshop-2-4-Swarm/python_restfulset/
 
 2. (master) Deploy application stack by command:
-	cd ~/docker_workshop_112018/Workshop-2-4-Swarm/python_restfulset/
+	cd ~/docker-workshop-112018-cloud/Workshop-2-4-Swarm/python_restfulset/
 	docker stack deploy -c docker-compose_swarm.yml webservice
 
 3. (master) Monitor status of service/application stack by command: (5 - 10 min)
@@ -321,6 +318,5 @@ Swarm Compose
 ==================================================
 Clean Up
 ==================================================
-####swarm-mng####
-1. Remove docker stack by command:
+1. (master) Remove docker stack by command:
 	docker stack rm webservice
