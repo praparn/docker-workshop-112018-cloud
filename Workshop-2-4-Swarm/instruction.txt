@@ -49,7 +49,6 @@ Initial Swarm Cluster
 	To add a manager to this swarm, run the following command:
 
     docker swarm join --token SWMTKN-1-1qnpobqw0hilpc5i90sz803tlhyi1h4k84uok10y814bvhyqf2-3u9rqxfwhbhw52qwqeeiewybl 10.0.1.104:2377
-
 	========================================
 
 2. (worker1) Join node to swarm by command:
@@ -97,11 +96,11 @@ Orchestrator Assignment: node constrain (master)
 
 1. Run service with Constraint “node.id” as command below <change node id to master>:
 	docker node ls
-	docker service create -dt --constraint 'node.id==3tnvltyyohbekgygvsb1jjovy' --name nodejs --replicas=5 labdocker/alpineweb:latest node hello.js
+	docker service create -dt --constraint 'node.id==<master nodeid>' --name nodejs --replicas=5 labdocker/alpineweb:latest node hello.js
 	docker service ps nodejs
 
 2. Change service with Constrating “node.hostname” and delete Constraint “node.id” by  command below:
-	docker service update -dt --constraint-rm 'node.id==3tnvltyyohbekgygvsb1jjovy' --constraint-add 'node.hostname!=<master hostname>' nodejs
+	docker service update -dt --constraint-rm 'node.id==<master nodeid>' --constraint-add 'node.hostname!=<master hostname>' nodejs
 	docker service inspect nodejs | grep update
 	docker service ps nodejs
 	docker service rm nodejs
@@ -279,8 +278,7 @@ Swarm Compose
 
 
 4. Test access web front by ip of docker node via command:
-	docker-machine ls
-	export Server_IP=<ip of node>
+	export Server_IP=<ip of any node>
 	export Server_Port=80
 
 	(basic test web)
