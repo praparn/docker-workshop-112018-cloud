@@ -17,7 +17,7 @@ LAB Preparation
 
 	*Remark: If need you can renew clone workshop again by command below:
     cd ~/
-	rm -rf ./docker-workshop-112018-cloud
+	sudo rm -rf ./docker-workshop-112018-cloud
     git clone https://github.com/praparn/docker-workshop-112018-cloud.git
 
 3. (all node) SSH/Putty to target machine with command below:

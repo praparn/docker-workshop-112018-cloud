@@ -1,7 +1,7 @@
 version: '3.4'
 services:
   webcache:
-    image: labdocker/cluster:webcache2
+    image: labdocker/cluster:webcache
     container_name: nginx
     deploy:
       mode: global
@@ -27,7 +27,7 @@ services:
         aliases:
         - webcache
     ports:
-      - "80:8080"
+      - "80:80"
 
   webservice:
     image: labdocker/cluster:webservice
@@ -56,7 +56,7 @@ services:
       - "5000:5000"
 
   maindb:
-    image: labdocker/mariadb:latest
+    image: labdocker/mysql:latest
     container_name: maindb
     deploy:
       mode: replicated
