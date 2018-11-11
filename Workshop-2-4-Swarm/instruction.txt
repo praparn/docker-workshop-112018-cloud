@@ -12,8 +12,8 @@ LAB Preparation
 ############################################################################################################################################################################
 
 2. Follow sheet to access all machine of your group and clear existing configuration by command: 
-	docker system prune -a
-	"Answer: Y" for clear all image and container in machine
+	cd ~/
+	docker system prune -af
 
 	*Remark: If need you can renew clone workshop again by command below:
     cd ~/

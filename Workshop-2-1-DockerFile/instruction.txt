@@ -53,7 +53,7 @@ Part 2: RESTFUL Python
 3. Build module "webcache" by command:
 	docker image build -t labdocker/webcache:1.0 -f dockerfile_nginx ./
 
-4. Setup application stack by command:
+4. Setup application stack by command: (Step-by-Step and Check)
 	(maindb: mariadb)
 	docker container run -dt --name maindb --net=restful_switch --network-alias=maindb -e MYSQL_ROOT_PASSWORD=password labdocker/mariadb:latest
 
