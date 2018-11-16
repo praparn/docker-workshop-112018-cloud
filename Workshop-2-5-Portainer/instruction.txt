@@ -15,4 +15,3 @@ For this workshop. We will demonstration how to start portainer server on labdoc
 	docker container stop portainer
 	docker container rm portainer
 	docker volume rm portainer_data
-

@@ -205,15 +205,15 @@ Overlay and Ingress Network
 	docker service ps nodejs
 
 4. (all node)Check IP Address of both container and service ip address by command:
-	docker inspect nodejs.1.XX|grep IPAddress ==> Record IP Address (Ex: 192.168.100.6)
-	docker inspect nodejs.2.XX|grep IPAddress ==> Record IP Address (Ex: 192.168.100.7)
-	docker service inspect nodejs			==> Record IP Address (Ex: 192.168.100.5)
+	docker inspect nodejs.1.XX|grep IPAddress ==> Record IP Address (Ex: 192.168.100.4)
+	docker inspect nodejs.2.XX|grep IPAddress ==> Record IP Address (Ex: 192.168.100.3)
+	docker service inspect nodejs			==> Record IP Address (Ex: 192.168.100.2)
 
 5. Test access from container replica1 ==> VIP, replica2 and container replica2 ==> VIP, replica1 by command:
-	docker exec -it nodejs.1.xxx ping 192.168.100.5
-	docker exec -it nodejs.1.xxx ping 192.168.100.7
-	docker exec -it nodejs.2.xxx ping 192.168.100.5
-	docker exec -it nodejs.2.xxx ping 192.168.100.6
+	docker exec -it nodejs.1.xxx ping 192.168.100.3
+	docker exec -it nodejs.1.xxx ping 192.168.100.2
+	docker exec -it nodejs.2.xxx ping 192.168.100.4
+	docker exec -it nodejs.2.xxx ping 192.168.100.2
 
 6. Test access via web page of any node's ip address:
 
